@@ -4,7 +4,9 @@ import os
 import sys
 import random
 
-output_dir = './my_faces'
+
+name = input('please input your name:')
+output_dir = './' + name + '_faces'
 size = 64
 
 if not os.path.exists(output_dir):
@@ -28,10 +30,12 @@ def relight(img, light=1, bias=0):
 
 #使用dlib自带的frontal_face_detector作为我们的特征提取器
 detector = dlib.get_frontal_face_detector()
-# 打开摄像头 参数为输入流，可以为摄像头或视频文件
-camera = cv2.VideoCapture(0)
 
-index = 1
+videoName = './' + name + '.avi'
+# 打开摄像头 参数为输入流，可以为摄像头或视频文件
+camera = cv2.VideoCapture(videoName)
+
+index = 929
 while True:
     if (index <= 10000):
         print('Being processed picture %s' % index)

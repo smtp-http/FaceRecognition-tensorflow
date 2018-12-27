@@ -6,7 +6,10 @@ import random
 import sys
 from sklearn.model_selection import train_test_split
 
-my_faces_path = './my_faces'
+name = input('please input your name:')
+my_faces_path = './' + name + '_faces'
+
+#my_faces_path = './tang_faces'
 other_faces_path = './other_faces'
 size = 64
 

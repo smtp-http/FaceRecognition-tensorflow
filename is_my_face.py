@@ -7,7 +7,10 @@ import random
 import sys
 from sklearn.model_selection import train_test_split
 
-my_faces_path = './my_faces'
+name = input('please input your name:')
+my_faces_path = './' + name + '_faces'
+
+#my_faces_path = './my_faces'
 other_faces_path = './other_faces'
 size = 64
 
@@ -144,7 +147,8 @@ def is_my_face(image):
 #使用dlib自带的frontal_face_detector作为我们的特征提取器
 detector = dlib.get_frontal_face_detector()
 
-cam = cv2.VideoCapture(0)  
+cam = cv2.VideoCapture('test.avi')  
+#cam = cv2.VideoCapture("rtsp://admin:ABC_123456@172.17.208.150:554/Streaming/Channels/101?transportmode=unicast")
    
 while True:  
     _, img = cam.read()  
@@ -165,9 +169,11 @@ while True:
         face = img[x1:y1,x2:y2]
         # 调整图片的尺寸
         face = cv2.resize(face, (size,size))
-        print('Is this my face? %s' % is_my_face(face))
-
-        cv2.rectangle(img, (x2,x1),(y2,y1), (255,0,0),3)
+        is_ok = is_my_face(face)
+        print('Is this my face? %s' % is_ok)
+        if is_ok:
+            #cv2.putText(img, name, (x1, y1-20), cv2.FONT_HERSHEY_SIMPLEX, 1, 255, 2)  #显示名字
+            cv2.rectangle(img, (x2,x1),(y2,y1), (255,0,0),3)
         cv2.imshow('image',img)
         key = cv2.waitKey(30) & 0xff
         if key == 27:
