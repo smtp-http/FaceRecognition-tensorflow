@@ -2,10 +2,19 @@ import cv2
 import dlib
 import os
 import sys
-import random
+#import random
+import time
+from multiprocessing import Process, JoinableQueue, Queue
+from random import random
+import time
+
+#tasks_queue = JoinableQueue()
+results_queue = Queue()
 
 
-name = input('please input your name:')
+
+name = "abc"#input('please input your name:')
+window_name = "face picture entry"
 output_dir = './' + name + '_faces'
 size = 64
 
@@ -31,11 +40,79 @@ def relight(img, light=1, bias=0):
 #使用dlib自带的frontal_face_detector作为我们的特征提取器
 detector = dlib.get_frontal_face_detector()
 
-videoName = './' + name + '.avi'
+#videoName = './' + name + '.avi'
+videoName = "rtsp://admin:ABC_123456@172.17.208.150:554/Streaming/Channels/101?transportmode=unicast"
 # 打开摄像头 参数为输入流，可以为摄像头或视频文件
-camera = cv2.VideoCapture(videoName)
 
-index = 929
+
+def CatchUsbVideo(out_queue):
+    process_flag = False
+    cv2.namedWindow(window_name)
+ 
+    #视频来源，可以来自一段已存好的视频，也可以直接来自USB摄像头
+    cap = cv2.VideoCapture(videoName)      
+    n = 1
+    while cap.isOpened():
+        ok, frame = cap.read() #读取一帧数据
+        if not ok:            
+            break                    
+ 
+        #显示图像并等待10毫秒按键输入，输入‘q’退出程序
+        cv2.namedWindow(window_name, cv2.WINDOW_NORMAL) #cv2.WND_PROP_FULLSCREEN)
+        #cv2.moveWindow(window_name, screen.x - 1, screen.y - 1)
+        cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN,
+                          cv2.WINDOW_FULLSCREEN)
+        n = n + 1
+        if n == 20:
+            if process_flag == True:
+                out_queue.put(frame)
+            n = 1
+            
+        else:
+            frameresize = cv2.resize(frame,(1280,800))
+            cv2.imshow(window_name, frameresize)
+
+        c = cv2.waitKey(10)
+        if c & 0xFF == ord('q'):
+            break        
+        if c & 0xFF == ord('d'):
+            process_flag = True
+ 
+    #释放摄像头并销毁所有窗口
+    cap.release()
+    cv2.destroyAllWindows() 
+
+
+def FaceDectection(in_queue):
+    while 1:
+        img = in_queue.get()
+        if img is None:
+            break
+        else:
+            print("====== recv pic")
+
+
+#if __name__ == '__main__':
+#    CatchUsbVideo()
+processes = []
+
+p = Process(target=CatchUsbVideo, args=(results_queue,))
+p.start()
+processes.append(p)
+
+p = Process(target=FaceDectection, args=(results_queue,))
+p.start()
+processes.append(p)
+
+
+for p in processes:
+    p.join()
+
+while 1:
+    time.sleep(1)
+
+"""
+index = 2499
 while True:
     if (index <= 10000):
         print('Being processed picture %s' % index)
@@ -69,3 +146,4 @@ while True:
     else:
         print('Finished!')
         break
+"""
