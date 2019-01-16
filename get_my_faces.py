@@ -92,20 +92,17 @@ def FaceDectection(in_queue):
         dets = detector(gray_img, 1)
 
         for i, d in enumerate(dets):
+            print("----- i:%d\n" % i)
             x1 = d.top() if d.top() > 0 else 0
             y1 = d.bottom() if d.bottom() > 0 else 0
             x2 = d.left() if d.left() > 0 else 0
             y2 = d.right() if d.right() > 0 else 0
 
             face = img[x1:y1,x2:y2]
-            # 调整图片的对比度与亮度， 对比度与亮度值都取随机数，这样能增加样本的多样性
-            #face = relight(face, random.uniform(0.5, 1.5), random.randint(-50, 50))
 
-            face = cv2.resize(face, (size,size))
 
-            #cv2.imshow('image', face)
-
-            cv2.imwrite(output_dir+'/'+str(index)+'.jpg', face)
+            if face.shape[0] > 400 :  # check picture size
+                cv2.imwrite(output_dir+'/'+str(index)+'.jpg', face)
 
             index += 1
 
